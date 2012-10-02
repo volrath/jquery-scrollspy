@@ -2,7 +2,7 @@
 
 An adaptation of the Mootools Scrollspy ( http://davidwalsh.name/mootools-scrollspy ) plugin for jQuery
 
-(c) 2011 Samuel Alexander (sxalexander@gmail.com)
+(c) 2012 Daniel Barreto (volrath@talpor.com), forked from Samuel Alexander (sxalexander@gmail.com)
 
 Released under The MIT License.
 
@@ -13,22 +13,22 @@ scrollspy is a simple jQuery plugin for firing events based on where the user ha
 
 ## Homepage:
 
-http://github.com/sxalexander/jquery-scrollspy
+http://github.com/volrath/jquery-scrollspy
 
 ## Source:
 
 Hosted at GitHub; browse at:
 
-  http://github.com/sxalexander/jquery-scrollspy/tree/master
+  http://github.com/volrath/jquery-scrollspy/tree/master
 
 Or clone from:
 
-    git://github.com/sxalexander/jquery-scrollspy.git
+    git://github.com/volrath/jquery-scrollspy.git
 
 ## Usage:
 
 1. Insert the necessary elements in your document's `<head>` section, e.g.:
-   
+
         <script type='text/javascript' src='/javascripts/jquery.scrollspy.js'></script>
 
  Remember to include jquery.scrollspy.js *after* including the main jQuery library.
@@ -36,17 +36,17 @@ Or clone from:
 2. Initialise scrollspy in your document.onload, e.g.:
 
         <script type='text/javascript'>
-	        $(document).ready(function() {
-        			$('#sticky-navigation').scrollspy({
-    					min: $('#nav').offset().top,
-    					onEnter: function(element, position) {
-    						$("#nav").addClass('fixed');
-    					},
-    					onLeave: function(element, position) {
-    						$("#nav").removeClass('fixed');
-    					}
-        			});
-        		});
+                $(document).ready(function() {
+                                $('#sticky-navigation').scrollspy({
+                                        min: $('#nav').offset().top,
+                                        onEnter: function(element, position) {
+                                                $("#nav").addClass('fixed');
+                                        },
+                                        onLeave: function(element, position) {
+                                                $("#nav").removeClass('fixed');
+                                        }
+                                });
+                        });
         </script>
 
 Check out the /examples for more info !
@@ -63,16 +63,16 @@ Options for ScrollSpy include:
 Events for ScrollSpy include:
 
     scrollTick: Fires on each scroll event within the min and max parameters. Receives as parameters:
-    
+
         position: an object with the current X and Y position.
         inside: a Boolean value for whether or not the user is within the min and max parameters
         enters: the number of times the min / max has been entered.
         leaves: the number of times the min / max has been left.
-    
+
     scrollEnter: Fires every time the user enters the min / max zone.
             position: an object with the current X and Y position.
             enters: the number of times the min / max has been entered.
-    
+
     scrollLeave: Fires every time the user leaves the min / max zone.
             position: an object with the current X and Y position.
             leaves: the number of times the min / max has been left.
