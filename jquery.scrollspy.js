@@ -1,6 +1,6 @@
 /*!
  * jQuery Scrollspy Plugin
- * Author: @sxalexander
+ * Author: Daniel Barreto
  * Licensed under the MIT license
  */
 
