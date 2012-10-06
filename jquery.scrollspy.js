@@ -22,15 +22,16 @@
 
             if (options.max === null && options.min === null) {  // both were made without size, so windows size might matter.
                 options.max = options.min = 0;
-                $(options.container).bind('resize.scrollspy', {'element': this}, scrollspyMethods.resize);
+                $(options.container).bind('resize.scrollspy', {'elements': this}, scrollspyMethods.resize);
             }
-            this.data('scrollspy.options', options);
 
-            return this.each(function(i) { scrollspyMethods.initElement(this); });
+            return this.each(function(i) { scrollspyMethods.initElement(this, options); });
         },
 
-        initElement: function(element) {
-            var options = $(element).data('scrollspy.options');
+        initElement: function(element, options) {
+            // first we attach the options to the element:
+            $(element).data('scrollspy.options', options);
+
             var $container = $(options.container);
             var elementPosition = $(element).position();
 
@@ -54,12 +55,14 @@
         },
 
         resize: function(event) {
-            var element = event.data.element;
-            var options = element.data('scrollspy.options');
-            var elementPosition = $(element).position();
-            options.min = elementPosition.top;
-            options.max = elementPosition.top + $(element).height();
-            element.data('scrollspy.options', options);
+            var elements = event.data.elements;
+            elements.each(function(i) {
+                var options = $(this).data('scrollspy.options');
+                var elementPosition = $(this).position();
+                options.min = elementPosition.top;
+                options.max = elementPosition.top + $(this).height();
+                $(this).data('scrollspy.options', options);
+            });
         },
 
         watchScroll: function(event) {
