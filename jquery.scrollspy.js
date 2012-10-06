@@ -28,8 +28,9 @@
             return this.each(function(i) { scrollspyMethods.initElement(this, options); });
         },
 
-        initElement: function(element, options) {
+        initElement: function(element, ops) {
             // first we attach the options to the element:
+            var options = $.extend(true, {}, ops);  // deep options clone
             $(element).data('scrollspy.options', options);
 
             var $container = $(options.container);
@@ -50,7 +51,6 @@
             if ($.isFunction(options.min)) options.min = options.min();
 
             $(element).data('scrollspy.options', options);
-
             $container.bind('scroll.scrollspy', {'element': element}, scrollspyMethods.watchScroll);
         },
 
