@@ -10,8 +10,8 @@
     var scrollspyMethods = {
         init: function(options) {
             var options = $.extend({
-                min: 0,
-                max: 0,
+                min: null,
+                max: null,
                 mode: 'vertical',
                 buffer: 0,
                 container: window,
@@ -20,65 +20,84 @@
                 onTick: options.onTick ? options.onTick : []
             }, options);
 
-            return this.each(function (i) {
-                var element = this;
-                var elementPosition = $(this).position();
-                var $container = $(options.container);
-                var mode = options.mode;
-                var buffer = options.buffer;
-                var enters = leaves = 0;
-                var inside = false;
+            if (options.max === null && options.min === null) {  // both were made without size, so windows size might matter.
+                options.max = options.min = 0;
+                $(options.container).bind('resize.scrollspy', {'element': this}, scrollspyMethods.resize);
+            }
+            this.data('scrollspy.options', options);
 
-                this.options = options;
+            return this.each(function(i) { scrollspyMethods.initElement(this); });
+        },
 
-                if (this.options.min == 0)  // default: vertical
-                    this.options.min = elementPosition.top;
-                if (this.options.max == 0)  // default: vertical
-                    this.options.max = elementPosition.top + $(this).height();
+        initElement: function(element) {
+            var options = $(element).data('scrollspy.options');
+            var $container = $(options.container);
+            var elementPosition = $(element).position();
 
-                // check if max/min are callables
-                // fix max
-                if ($.isFunction(this.options.max)) this.options.max = this.options.max();
-                if (this.options.max == 0)
-                    this.options.max = (mode == 'vertical') ? $container.height() : $container.outerWidth() + $(element).outerWidth();
+            if (options.min == 0)  // default: vertical
+                options.min = elementPosition.top;
+            if (options.max == 0)  // default: vertical
+                options.max = elementPosition.top + $(element).height();
 
-                // fix min
-                if ($.isFunction(this.options.min)) this.options.min = this.options.min();
+            // check if max/min are callables
+            // fix max
+            if ($.isFunction(options.max)) options.max = options.max();
+            if (options.max == 0)
+                options.max = (options.mode == 'vertical') ? $container.height() : $container.outerWidth() + $(element).outerWidth();
 
-                // add listener to container
-                $container.bind('scroll', function(e){
-                    var position = {top: $(this).scrollTop(), left: $(this).scrollLeft()};
-                    var xy = (mode == 'vertical') ? position.top + buffer : position.left + buffer;
+            // fix min
+            if ($.isFunction(options.min)) options.min = options.min();
 
-                    // if we have reached the minimum bound but are below the max ...
-                    if (xy >= element.options.min && xy <= element.options.max){
-                        // trigger enter event
-                        if (!inside) {
-                            inside = true;
-                            enters++;
+            $(element).data('scrollspy.options', options);
 
-                            // fire enter event
-                            $(element).trigger('scrollEnter', { position: position });
-                            if ($.isFunction(element.options.onEnter)) element.options.onEnter(element, position);
-                        }
+            $container.bind('scroll.scrollspy', {'element': element}, scrollspyMethods.watchScroll);
+        },
 
-                        // triger tick event
-                        $(element).trigger('scrollTick', { position: position, inside: inside, enters: enters, leaves: leaves });
-                        if ($.isFunction(element.options.onTick)) element.options.onTick(element, position, inside, enters, leaves);
-                    } else {
-                        if (inside) {
-                            inside = false;
-                            leaves++;
+        resize: function(event) {
+            var element = event.data.element;
+            var options = element.data('scrollspy.options');
+            var elementPosition = $(element).position();
+            options.min = elementPosition.top;
+            options.max = elementPosition.top + $(element).height();
+            element.data('scrollspy.options', options);
+        },
 
-                            // trigger leave event
-                            $(element).trigger('scrollLeave', {position: position, leaves:leaves});
-                            if ($.isFunction(element.options.onLeave)) this.options.onLeave(element, position);
-                        }
-                    }
-                });
+        watchScroll: function(event) {
+            var element = event.data.element;
+            var options = $(element).data('scrollspy.options');
+            var $container = $(options.container);
+            var inside = false;
+            var enters = leaves = 0;
 
-            });
+            // gets the element position against the container
+            var position = {top: $container.scrollTop(), left: $container.scrollLeft()};
+            var xy = (options.mode == 'vertical') ? position.top + options.buffer : position.left + options.buffer;
 
+            // if we have reached the minimum bound but are below the max ...
+            if (xy >= options.min && xy <= options.max){
+                // trigger enter event
+                if (!inside) {
+                    inside = true;
+                    enters++;
+
+                    // fire enter event
+                    $(element).trigger('scrollEnter', { position: position });
+                    if ($.isFunction(options.onEnter)) options.onEnter(element, position);
+                }
+
+                // triger tick event
+                $(element).trigger('scrollTick', { position: position, inside: inside, enters: enters, leaves: leaves });
+                if ($.isFunction(options.onTick)) options.onTick(element, position, inside, enters, leaves);
+            } else {
+                if (inside) {
+                    inside = false;
+                    leaves++;
+
+                    // trigger leave event
+                    $(element).trigger('scrollLeave', {position: position, leaves: leaves});
+                    if ($.isFunction(options.onLeave)) options.onLeave(element, position);
+                }
+            }
         }
     };
 
